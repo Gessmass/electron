@@ -14,8 +14,8 @@ const createWindow = () => {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      // enableBlinkFeatures: "WebBluetooth",
-      // preload: path.join(__dirname, "preload.js")
+      enableBlinkFeatures: "WebBluetooth",
+      preload: path.join(__dirname, "preload.js")
     }
   });
   
@@ -23,9 +23,26 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools()
   
 
-    // mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, 'app', 'build', 'index.html')}`)
+    // mainWindow.loadFile(path.join(__dirname, 'app', 'build', 'index.html'))
  mainWindow.loadURL('http://localhost:3000')
+  
+  mainWindow.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
+    event.preventDefault()
+    selectBluetoothCallback = callback
+    const result = deviceList.find((device) => {
+      return device.deviceName === 'test'
+    })
+    if (result) {
+      callback(result.deviceId)
+    } else {
+    
+    }
+  })
 }
+
+ipcMain.on('get-bluetooth-devices', (event) => {
+  const deviceList
+})
 
 
 app.whenReady().then(createWindow);
