@@ -1,19 +1,33 @@
 import styled from '@emotion/styled'
-import {useState} from "react";
 import {Button, Dropdown} from "antd"
-import {DownloadOutlined, RedoOutlined} from "@ant-design/icons"
+import {DownloadOutlined, RedoOutlined, CloseOutlined } from "@ant-design/icons"
 import React from "react";
 
 export const BluetoothPage = () => {
   
-  const [devices, setDevices] = useState([])
+  const options = {
+    acceptAllDevices: true
+  }
+  const getBluetoothDevices = async () => {
+  navigator.bluetooth.requestDevice(options)
+    .then((device) => {
+      console.log(device.name)
+    }).catch((error) => {
+      console.log(error)
+  })
+  };
+  
+
   
   return (
     <BluetoothPageWrapper>
       <DataForm>
         <DeviceListWrapper>
-          <Button type="primary" icon={<RedoOutlined/>} >
+          <Button type="primary" icon={<RedoOutlined/>} onClick={() => getBluetoothDevices()}>
             Scan Devices
+          </Button>
+          <Button type="primary" danger icon={<CloseOutlined />} onClick={() => getBluetoothDevices()}>
+            Disconnect Device
           </Button>
         </DeviceListWrapper>
         <FetchDataWrapper>
@@ -33,7 +47,8 @@ const DeviceListWrapper = styled.div`
     height: 90%;
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    flex-direction: column;
+    gap: 10px;
 `
 
 const FetchDataWrapper = styled.div`
@@ -61,7 +76,7 @@ const BluetoothPageWrapper = styled.div`
 `
 
 const DataDisplay = styled.div`
-    border: 2px solid black;
+    border: 1px solid black;
     border-radius: 6px;
     min-height: 200px;
     width: 50%;
