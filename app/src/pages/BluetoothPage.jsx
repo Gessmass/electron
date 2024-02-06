@@ -2,20 +2,23 @@ import styled from '@emotion/styled'
 import {Button, Dropdown} from "antd"
 import {DownloadOutlined, RedoOutlined, CloseOutlined } from "@ant-design/icons"
 import React from "react";
+import {deviceTest} from "../connections/bluetooth.js";
 
 export const BluetoothPage = () => {
   
-  const options = {
-    acceptAllDevices: true
-  }
-  const getBluetoothDevices = async () => {
-  navigator.bluetooth.requestDevice(options)
-    .then((device) => {
-      console.log(device.name)
-    }).catch((error) => {
-      console.log(error)
-  })
-  };
+  // const options = {
+  //   acceptAllDevices: true
+  // }
+  // const getBluetoothDevices = async () => {
+  // navigator.bluetooth.requestDevice(options)
+  //   .then((device) => {
+  //     console.log(device.name)
+  //   }).catch((error) => {
+  //     console.log(error)
+  // })
+  // };
+  //
+  
   
 
   
@@ -23,10 +26,10 @@ export const BluetoothPage = () => {
     <BluetoothPageWrapper>
       <DataForm>
         <DeviceListWrapper>
-          <Button type="primary" icon={<RedoOutlined/>} onClick={() => getBluetoothDevices()}>
+          <Button type="primary" icon={<RedoOutlined/>} onClick={() => deviceTest()}>
             Scan Devices
           </Button>
-          <Button type="primary" danger icon={<CloseOutlined />} onClick={() => getBluetoothDevices()}>
+          <Button type="primary" danger icon={<CloseOutlined />} >
             Disconnect Device
           </Button>
         </DeviceListWrapper>

@@ -4,19 +4,33 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start:electron": "electronmon . --trace-warnings",
-    "dev:electron": "wait-on http://localhost:3000 && electronmon ."
+    "dev": "node",
+    "start:dev": "npm run build:dev && electron .",
+    "start:server": "webpack serve --mode development --open",
+    "build:dev": "rm -rf dist && webpack --mode development --config webpack.config.js",
+    "build:prod": "rm -rf dist && webpack --mode production --config webpack.config.js && npm run build:native",
+    "build:native": "electron-packager . --platform=win32 --arch=x64 --overwrite"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "css-loader": "^6.10.0",
     "dotenv": "^16.4.1",
     "electronmon": "^2.0.2",
-    "path": "^0.12.7"
+    "html-webpack-plugin": "^5.6.0",
+    "path": "^0.12.7",
+    "style-loader": "^3.3.4",
+    "wait-on": "^7.2.0"
   },
   "devDependencies": {
-    "electron": "^28.2.1"
+    "@babel/core": "^7.23.9",
+    "@babel/preset-env": "^7.23.9",
+    "@babel/preset-react": "^7.23.3",
+    "babel-loader": "^9.1.3",
+    "electron": "^28.2.1",
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
   }
 }

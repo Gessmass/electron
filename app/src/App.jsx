@@ -4,6 +4,7 @@ import {BluetoothPage} from "./pages/BluetoothPage"
 import {WifiPage} from "./pages/WifiPage"
 import {EthernetPage} from "./pages/EthernetPage"
 import React from "react";
+import {DevicePicker} from "./components/devicePicker.jsx";
 
  const App = () => {
   return (
@@ -13,6 +14,7 @@ import React from "react";
           <Route index path="/bluetooth" element={<BluetoothPage/>}/>
           <Route path="/wifi" element={<WifiPage/>}/>
           <Route path="/ethernet" element={<EthernetPage/>}/>
+          <Route path="/devicePicker" element={<DevicePicker/>}/>
         </Route>
       </Routes>
     </Router>
