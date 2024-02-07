@@ -1,34 +1,53 @@
 import styled from '@emotion/styled'
 import {Button, Dropdown} from "antd"
 import {DownloadOutlined, RedoOutlined, CloseOutlined } from "@ant-design/icons"
-import React from "react";
-import {deviceTest} from "../connections/bluetooth.js";
+import React, {useEffect, useState} from "react";
+// const {ipcRenderer} = window.require('electron')
 
 export const BluetoothPage = () => {
+  const [devices, setDevices] = useState([])
   
-  // const options = {
-  //   acceptAllDevices: true
+  const scanBluetoothDevices = async () => {
+    console.log("scanBluetoothDevices")
+    
+    const device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true
+    }).then((device) => {
+      console.log("device", device)
+    })
+  }
+  
+  // useEffect(() => {
+  //   const handleDeviceList = (event, devices) => {
+  //     setDevices(devices);
+  //   };
+  //
+  //   ipcRenderer.on('xyz', handleDeviceList);
+  //
+  //   return () => {
+  //     ipcRenderer.removeListener('xyz', handleDeviceList);
+  //   };
+  // }, []);
+  //
+  //
+  // const cancelDevicesScan = () => {
+  //   ipcRenderer.send('cancel-devices-scan')
   // }
-  // const getBluetoothDevices = async () => {
-  // navigator.bluetooth.requestDevice(options)
-  //   .then((device) => {
-  //     console.log(device.name)
-  //   }).catch((error) => {
-  //     console.log(error)
-  // })
-  // };
   //
   
-  
-
   
   return (
     <BluetoothPageWrapper>
       <DataForm>
         <DeviceListWrapper>
-          <Button type="primary" icon={<RedoOutlined/>} onClick={() => deviceTest()}>
+          <Button type="primary" icon={<RedoOutlined/>} onClick={() => scanBluetoothDevices()}>
             Scan Devices
           </Button>
+          <DeviceListDisplay>
+            {devices.map(device => (
+              <li key={device.id}>{device.deviceName}</li>
+            ))}
+          </DeviceListDisplay>
           <Button type="primary" danger icon={<CloseOutlined />} >
             Disconnect Device
           </Button>
@@ -44,6 +63,14 @@ export const BluetoothPage = () => {
     </BluetoothPageWrapper>
   )
 }
+
+const DeviceListDisplay = styled.div`
+    border: 1px solid black;
+    height: 200px;
+    width: 100%;
+    border-radius: 6px;
+    overflow-y: scroll;
+`
 
 const DeviceListWrapper = styled.div`
     width: 100%;
@@ -71,7 +98,7 @@ const DataForm = styled.div`
     justify-content: space-around;
     flex-direction: column;
     gap: 10px;
-    min-height: 300px;
+    min-height: 400px;
 `
 
 const BluetoothPageWrapper = styled.div`

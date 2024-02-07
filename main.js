@@ -3,7 +3,7 @@ const path = require("path")
 
 const isMac = process.platform === 'darwin'
 
-let selectBluetoothCallback
+let callbackFroBluetoothEvent
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
@@ -17,33 +17,27 @@ const createWindow = () => {
       // preload: path.join(__dirname, "preload.js")
     }
   });
+  
+  mainWindow.webContents.on("select-bluetooth-device", (event, devices, callback) => {
+    event.preventDefault()
+    mainWindow.webContents.send('xyz', devices)
+    console.log("Bluetooth devices list dispatched", devices)
+    callbackFroBluetoothEvent = callback
+  })
+  
+  ipcMain.on('cancel-devices-scan', (event, deviceId) => {
+    callbackFroBluetoothEvent(deviceId)
+    console.log("Scan end")
+  })
+  
   mainWindow.webContents.openDevTools()
   
-  mainWindow.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
-    event.preventDefault()
-    console.log(deviceList)
-    let bluetoothDeviceList = deviceList
-    selectBluetoothCallback = callback
-    
-    mainWindow.webContents.send('channelFroBluetoothDeviceList', bluetoothDeviceList)
-  })
-  
-    // mainWindow.loadFile(path.join(__dirname, 'app', 'public', 'index.html'))
- mainWindow.loadURL('http://localhost:3000')
-  
-  ipcMain.on('channelForTerminationSignal', __  => {
-    selectBluetoothCallback('')
-    console.log("Discovery cancelled")
-  })
-  
-  ipcMain.on('channelForSelectingDevice', (event, DeviceId) => {
-    selectBluetoothCallback(sentDeviceId)
-    console.log("Device selected, discovery finished")
-  })
+    mainWindow.loadURL(`file://${path.join(__dirname, `./dist/index.html`)}`)
+ // mainWindow.loadURL('http://localhost:3000')
 }
 
-app.commandLine.appendSwitch("enable-experimental-web-platform-features", "true");
-app.commandLine.appendSwitch("enable-web-bluetooth", "true");
+// app.commandLine.appendSwitch("enable-experimental-web-platform-features", "true");
+// app.commandLine.appendSwitch("enable-web-bluetooth", "true");
 
 app.whenReady().then(createWindow);
 

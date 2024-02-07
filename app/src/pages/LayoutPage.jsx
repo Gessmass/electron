@@ -20,9 +20,6 @@ export const LayoutPage = () => {
           <Menu.Item key="3">
             <Link to="/ethernet">Ethernet</Link>
           </Menu.Item>
-          <Menu.Item key="4">
-            <Link to="/devicePicker">Device Picker</Link>
-          </Menu.Item>
         </Menu>
       </Header>
       <Content style={{
