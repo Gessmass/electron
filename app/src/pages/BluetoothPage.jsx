@@ -2,7 +2,7 @@ import styled from '@emotion/styled'
 import {Button, Dropdown} from "antd"
 import {DownloadOutlined, RedoOutlined, CloseOutlined } from "@ant-design/icons"
 import React, {useEffect, useState} from "react";
-// const {ipcRenderer} = window.require('electron')
+const {ipcRenderer} = window.require('electron')
 
 export const BluetoothPage = () => {
   const [devices, setDevices] = useState([])
@@ -11,29 +11,37 @@ export const BluetoothPage = () => {
     console.log("scanBluetoothDevices")
     
     const device = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true
-    }).then((device) => {
-      console.log("device", device)
+      filters: [{
+        services: ['battery_service']
+      }]
+    }).then((server) => {
+      return server.getPrimaryService('battery_service')
+    }).then((service) => {
+      return service.getCharacteristics('battery_level')
+    }).then((characteristics) => {
+      return characteristics.readValue()
+    }).then((value)=> {
+      console.log(`Battery is ${value.getUint8(0)}`)
     })
   }
   
-  // useEffect(() => {
-  //   const handleDeviceList = (event, devices) => {
-  //     setDevices(devices);
-  //   };
-  //
-  //   ipcRenderer.on('xyz', handleDeviceList);
-  //
-  //   return () => {
-  //     ipcRenderer.removeListener('xyz', handleDeviceList);
-  //   };
-  // }, []);
-  //
-  //
-  // const cancelDevicesScan = () => {
-  //   ipcRenderer.send('cancel-devices-scan')
-  // }
-  //
+  useEffect(() => {
+    const handleDeviceList = (event, devices) => {
+      setDevices(devices);
+    };
+
+    ipcRenderer.on('xyz', handleDeviceList);
+
+    return () => {
+      ipcRenderer.removeListener('xyz', handleDeviceList);
+    };
+  }, []);
+
+
+  const cancelDevicesScan = () => {
+    ipcRenderer.send('cancel-devices-scan')
+  }
+
   
   
   return (
