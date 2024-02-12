@@ -20,14 +20,20 @@ const createWindow = () => {
   
   mainWindow.webContents.on("select-bluetooth-device", (event, devices, callback) => {
     event.preventDefault()
-    mainWindow.webContents.send('xyz', devices)
-    console.log("Bluetooth devices list dispatched", devices)
+    const filteredDevices = devices.filter(device => device.deviceName !== null)
+    mainWindow.webContents.send('xyz', filteredDevices)
+    console.log("Bluetooth devices list dispatched", filteredDevices)
     callbackFroBluetoothEvent = callback
   })
   
-  ipcMain.on('cancel-devices-scan', (event, deviceId) => {
+  ipcMain.on('channel-to-select-device', (event, deviceId) => {
     callbackFroBluetoothEvent(deviceId)
-    console.log("Scan end")
+    console.log(`Device selected is ${deviceId}`)
+  })
+  
+  ipcMain.on('cancel-devices-scan', _ => {
+    callbackFroBluetoothEvent('')
+    console.log("Scan canceled")
   })
   
   mainWindow.webContents.openDevTools()
@@ -36,8 +42,8 @@ const createWindow = () => {
  // mainWindow.loadURL('http://localhost:3000')
 }
 
-// app.commandLine.appendSwitch("enable-experimental-web-platform-features", "true");
-// app.commandLine.appendSwitch("enable-web-bluetooth", "true");
+app.commandLine.appendSwitch("enable-experimental-web-platform-features", "true");
+app.commandLine.appendSwitch("enable-web-bluetooth", "true");
 
 app.whenReady().then(createWindow);
 

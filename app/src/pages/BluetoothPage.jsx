@@ -1,33 +1,53 @@
 import styled from '@emotion/styled'
 import {Button, Dropdown} from "antd"
-import {DownloadOutlined, RedoOutlined, CloseOutlined } from "@ant-design/icons"
+import {DownloadOutlined, RedoOutlined, CloseOutlined, LoadingOutlined} from "@ant-design/icons"
 import React, {useEffect, useState} from "react";
 const {ipcRenderer} = window.require('electron')
 
 export const BluetoothPage = () => {
   const [devices, setDevices] = useState([])
+  const [selectedDevice, setSelectedDevice] = useState(null)
+  const [disableButton, setDisableButton] = useState(true)
+  const [deviceInfo, setDeviceInfo] = useState(null)
   
   const scanBluetoothDevices = async () => {
-    console.log("scanBluetoothDevices")
+    console.log("scanBluetoothDevices");
     
-    const device = await navigator.bluetooth.requestDevice({
-      filters: [{
-        services: ['battery_service']
-      }]
-    }).then((server) => {
-      return server.getPrimaryService('battery_service')
-    }).then((service) => {
-      return service.getCharacteristics('battery_level')
-    }).then((characteristics) => {
-      return characteristics.readValue()
-    }).then((value)=> {
-      console.log(`Battery is ${value.getUint8(0)}`)
-    })
-  }
+    try {
+      const isAvailable = await navigator.bluetooth.getAvailability();
+      if (!isAvailable) {
+        throw new Error('Bluetooth not available on this device');
+      }
+      
+      const device = await navigator.bluetooth.requestDevice({
+        filters: [{services: [0x180F]}] // Utilisez l'UUID correct pour 'battery_service'
+      });
+      
+      // Assurez-vous d'attendre la connexion avant de continuer
+      const server = await device.gatt.connect();
+      
+      // Obtenez le service de batterie
+      const service = await server.getPrimaryService('battery_service');
+      
+      // Obtenez la caractéristique de niveau de batterie
+      const characteristic = await service.getCharacteristic('battery_level');
+      
+      // Lisez la valeur de la caractéristique
+      const value = await characteristic.readValue();
+      setDeviceInfo(value.getUint8(0))
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  
   
   useEffect(() => {
     const handleDeviceList = (event, devices) => {
-      setDevices(devices);
+      // Filtre les appareils inconnus ou non compatibles
+      const filteredDevices = devices.filter(device =>
+        !device.deviceName.startsWith('Appareil'));
+      setDevices(filteredDevices);
     };
 
     ipcRenderer.on('xyz', handleDeviceList);
@@ -36,10 +56,22 @@ export const BluetoothPage = () => {
       ipcRenderer.removeListener('xyz', handleDeviceList);
     };
   }, []);
+  
+  console.log(devices)
 
 
   const cancelDevicesScan = () => {
+    console.log("stop scanning")
     ipcRenderer.send('cancel-devices-scan')
+    setDisableButton(true)
+    setDevices([])
+  }
+  
+  
+  const selectDevice = (device) => {
+  ipcRenderer.send('channel-to-select-device', device.deviceId)
+    setSelectedDevice(device)
+    setDisableButton(true)
   }
 
   
@@ -48,29 +80,56 @@ export const BluetoothPage = () => {
     <BluetoothPageWrapper>
       <DataForm>
         <DeviceListWrapper>
-          <Button type="primary" icon={<RedoOutlined/>} onClick={() => scanBluetoothDevices()}>
+          <Button type="primary" icon={disableButton ? <RedoOutlined/> : <LoadingOutlined />} onClick={() => {
+            scanBluetoothDevices()
+          setDisableButton(false)
+            }}>
             Scan Devices
           </Button>
+            {devices.length}
           <DeviceListDisplay>
-            {devices.map(device => (
-              <li key={device.id}>{device.deviceName}</li>
+            {devices.map((device, index) => (
+            <DeviceSelectorWrapper key={index} onClick={() => selectDevice(device)}>
+              <p>{device.deviceName}</p>
+            </DeviceSelectorWrapper>
             ))}
           </DeviceListDisplay>
-          <Button type="primary" danger icon={<CloseOutlined />} >
-            Disconnect Device
+          <Button disabled={disableButton} type="primary" danger icon={<CloseOutlined />} onClick={() => cancelDevicesScan()}>
+            Stop Scanning
           </Button>
         </DeviceListWrapper>
         <FetchDataWrapper>
-          <Button type="primary" icon={<DownloadOutlined/>}>
+          <Button disabled={!selectedDevice} type="primary" icon={<DownloadOutlined/>} onClick={() => fetchData()}>
             Fetch data
           </Button>
         </FetchDataWrapper>
       </DataForm>
       <DataDisplay>
+        {selectedDevice &&
+        <SelectedDeviceName>{selectedDevice.deviceName}</SelectedDeviceName>
+        }
+        {deviceInfo}
       </DataDisplay>
     </BluetoothPageWrapper>
   )
 }
+
+const SelectedDeviceName = styled.h3`
+    color: purple;
+    font-size: 20px;
+`
+
+
+const DeviceSelectorWrapper = styled.div`
+    border: 1px solid black;
+    width: 100%;
+    height: 50px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(160, 160, 160, 0.42);
+    }
+`
 
 const DeviceListDisplay = styled.div`
     border: 1px solid black;
