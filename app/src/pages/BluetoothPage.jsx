@@ -2,49 +2,97 @@ import styled from '@emotion/styled'
 import {Button, Dropdown} from "antd"
 import {DownloadOutlined, RedoOutlined, CloseOutlined, LoadingOutlined} from "@ant-design/icons"
 import React, {useEffect, useState} from "react";
+import {J500Fparser} from "../parsers/J500Fparser.js";
 const {ipcRenderer} = window.require('electron')
 
 export const BluetoothPage = () => {
   const [devices, setDevices] = useState([])
   const [selectedDevice, setSelectedDevice] = useState(null)
   const [disableButton, setDisableButton] = useState(true)
-  const [deviceInfo, setDeviceInfo] = useState(null)
+  const [deviceInfo, setDeviceInfo] = useState(        {parsedSpo2Avg: null, parsedPrAvg: null}
+  )
   
   const scanBluetoothDevices = async () => {
     console.log("scanBluetoothDevices");
-    
+
     try {
       const isAvailable = await navigator.bluetooth.getAvailability();
       if (!isAvailable) {
-        throw new Error('Bluetooth not available on this device');
+        new Error('Bluetooth not available on this device');
       }
-      
+
       const device = await navigator.bluetooth.requestDevice({
-        filters: [{services: [0x180F]}] // Utilisez l'UUID correct pour 'battery_service'
+        filters: [{services: ['cdeacb80-5235-4c07-8846-93a37ee6b86d']}]
       });
-      
-      // Assurez-vous d'attendre la connexion avant de continuer
+
       const server = await device.gatt.connect();
-      
-      // Obtenez le service de batterie
-      const service = await server.getPrimaryService('battery_service');
-      
-      // Obtenez la caractéristique de niveau de batterie
-      const characteristic = await service.getCharacteristic('battery_level');
-      
-      // Lisez la valeur de la caractéristique
-      const value = await characteristic.readValue();
-      setDeviceInfo(value.getUint8(0))
+
+      const service = await server.getPrimaryService('cdeacb80-5235-4c07-8846-93a37ee6b86d');
+
+      const characteristic = await service.getCharacteristic('cdeacb81-5235-4c07-8846-93a37ee6b86d');
+
+      await characteristic.startNotifications()
+
+      characteristic.addEventListener('characteristicvaluechanged', (event) => {
+        const value = event.target.value
+        if (value.byteLength > 0) {
+         const {parsedSpo2Avg, parsedPrAvg} = J500Fparser(value)
+          setDeviceInfo({parsedSpo2Avg, parsedPrAvg})
+        }
+      })
     } catch (error) {
       console.error('Error:', error);
     }
   };
+  
+  // const scanBluetoothDevices = async () => {
+  //   try {
+  //     const isAvailable = navigator.bluetooth.getAvailability()
+  //       if (!isAvailable) {
+  //         throw new Error('Bluetooth is not available on your device')
+  //       }
+  //
+  //       const device = navigator.bluetooth.requestDevice({
+  //         filters:[
+  //           {services: [['cdeacb80-5235-4c07-8846-93a37ee6b86d']]}
+  //         ]
+  //       })
+  //         .then(device => {
+  //           device.gatt.connect()
+  //         })
+  //         .then(server => {
+  //           server.getPrimaryService('cdeacb80-5235-4c07-8846-93a37ee6b86d')
+  //         }).then(service => {
+  //           service.getCharacteristic('')
+  //         })
+  //         .then(characteristic => {
+  //           characteristic.startNotification()
+  //         })
+  //         .then(characteristic => {
+  //           characteristic.addEventListener('characteristicUpdated', (event) => {
+  //             const value = event.target.value
+  //             console.log(value)
+  //
+  //             if (value.byteLength > 0) {
+  //               const oxygenLevel = value.getUint8(0)
+  //               setDeviceInfo(oxygenLevel)
+  //             } else {
+  //               console.error('No data available')
+  //             }
+  //           })
+  //         }
+  //     )
+  //   } catch(error) {
+  //     console.error('Error :', error)
+  //   }
+  // }
+  //
+  
 
   
   
   useEffect(() => {
     const handleDeviceList = (event, devices) => {
-      // Filtre les appareils inconnus ou non compatibles
       const filteredDevices = devices.filter(device =>
         !device.deviceName.startsWith('Appareil'));
       setDevices(filteredDevices);
@@ -108,7 +156,6 @@ export const BluetoothPage = () => {
         {selectedDevice &&
         <SelectedDeviceName>{selectedDevice.deviceName}</SelectedDeviceName>
         }
-        {deviceInfo}
       </DataDisplay>
     </BluetoothPageWrapper>
   )
