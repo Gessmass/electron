@@ -38,8 +38,8 @@ const createWindow = () => {
   
   mainWindow.webContents.openDevTools()
   
-  mainWindow.loadURL(`file://${path.join(__dirname, `./dist/index.html`)}`)
-  // mainWindow.loadURL('http://localhost:3000')
+  // mainWindow.loadURL(`file://${path.join(__dirname, `./dist/index.html`)}`)
+  mainWindow.loadURL('http://localhost:3000')
 }
 
 app.commandLine.appendSwitch("enable-experimental-web-platform-features", "true");

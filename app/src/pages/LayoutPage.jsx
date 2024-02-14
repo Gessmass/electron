@@ -11,13 +11,19 @@ export const LayoutPage = () => {
     <Layout style={{height: "100%"}}>
       <Header>
         <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
-          <Menu.Item key="1">
-            <Link to="/bluetooth">Bluetooth</Link>
-          </Menu.Item>
+        <Menu.Item index key="1" >
+          <Link to="/data">Data</Link>
+        </Menu.Item>
           <Menu.Item key="2">
-            <Link to="/wifi">Wifi</Link>
+            <Link to="/devices">Devices</Link>
           </Menu.Item>
           <Menu.Item key="3">
+            <Link to="/bluetooth">Bluetooth</Link>
+          </Menu.Item>
+          <Menu.Item key="4">
+            <Link to="/wifi">Wifi</Link>
+          </Menu.Item>
+          <Menu.Item key="5">
             <Link to="/ethernet">Ethernet</Link>
           </Menu.Item>
         </Menu>

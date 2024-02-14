@@ -14,7 +14,6 @@ export const BluetoothPage = () => {
   
   const scanBluetoothDevices = async () => {
     console.log("scanBluetoothDevices");
-
     try {
       const isAvailable = await navigator.bluetooth.getAvailability();
       if (!isAvailable) {
@@ -25,71 +24,25 @@ export const BluetoothPage = () => {
         filters: [{services: ['cdeacb80-5235-4c07-8846-93a37ee6b86d']}]
       });
 
-      const server = await device.gatt.connect();
+      const server = await device?.gatt?.connect();
 
-      const service = await server.getPrimaryService('cdeacb80-5235-4c07-8846-93a37ee6b86d');
+      const service = await server?.getPrimaryService('cdeacb80-5235-4c07-8846-93a37ee6b86d');
 
-      const characteristic = await service.getCharacteristic('cdeacb81-5235-4c07-8846-93a37ee6b86d');
+      const characteristic = await service?.getCharacteristic('cdeacb81-5235-4c07-8846-93a37ee6b86d');
 
-      await characteristic.startNotifications()
+      await characteristic?.startNotifications()
 
       characteristic.addEventListener('characteristicvaluechanged', (event) => {
         const value = event.target.value
         if (value.byteLength > 0) {
          const {parsedSpo2Avg, parsedPrAvg} = J500Fparser(value)
-          setDeviceInfo({parsedSpo2Avg, parsedPrAvg})
+          console.log(parsedSpo2Avg, parsedPrAvg)
         }
       })
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error :', error);
     }
   };
-  
-  // const scanBluetoothDevices = async () => {
-  //   try {
-  //     const isAvailable = navigator.bluetooth.getAvailability()
-  //       if (!isAvailable) {
-  //         throw new Error('Bluetooth is not available on your device')
-  //       }
-  //
-  //       const device = navigator.bluetooth.requestDevice({
-  //         filters:[
-  //           {services: [['cdeacb80-5235-4c07-8846-93a37ee6b86d']]}
-  //         ]
-  //       })
-  //         .then(device => {
-  //           device.gatt.connect()
-  //         })
-  //         .then(server => {
-  //           server.getPrimaryService('cdeacb80-5235-4c07-8846-93a37ee6b86d')
-  //         }).then(service => {
-  //           service.getCharacteristic('')
-  //         })
-  //         .then(characteristic => {
-  //           characteristic.startNotification()
-  //         })
-  //         .then(characteristic => {
-  //           characteristic.addEventListener('characteristicUpdated', (event) => {
-  //             const value = event.target.value
-  //             console.log(value)
-  //
-  //             if (value.byteLength > 0) {
-  //               const oxygenLevel = value.getUint8(0)
-  //               setDeviceInfo(oxygenLevel)
-  //             } else {
-  //               console.error('No data available')
-  //             }
-  //           })
-  //         }
-  //     )
-  //   } catch(error) {
-  //     console.error('Error :', error)
-  //   }
-  // }
-  //
-  
-
-  
   
   useEffect(() => {
     const handleDeviceList = (event, devices) => {
@@ -147,7 +100,7 @@ export const BluetoothPage = () => {
           </Button>
         </DeviceListWrapper>
         <FetchDataWrapper>
-          <Button disabled={!selectedDevice} type="primary" icon={<DownloadOutlined/>} onClick={() => fetchData()}>
+          <Button disabled={!selectedDevice} type="primary" icon={<DownloadOutlined/>}>
             Fetch data
           </Button>
         </FetchDataWrapper>
