@@ -4,21 +4,12 @@ import {useEffect} from "react";
 import { connectRequest} from "../reducers/bluetoothSlice.js";
 
 export const ObservationDisplay = ({observationType}) => {
-  const dispatch = useDispatch()
-  const {devices, error} = useSelector(state => state.bluetooth)
-  
-  useEffect(() => {
-    dispatch(connectRequest())
-  }, [dispatch]);
-  
-console.log("devices :", devices);
-console.log("Error :", error);
-  
+
+
   return (
     <ObservationDisplayBorder>
       <ObservationName>{observationType}</ObservationName>
-      <button onClick={() => dispatch(connectRequest())}>Connect to Device</button>
-      
+
       <ObservationResult></ObservationResult>
     </ObservationDisplayBorder>
   )

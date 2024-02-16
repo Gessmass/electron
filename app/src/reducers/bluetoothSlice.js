@@ -1,33 +1,38 @@
-import {createSlice} from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit';
 
-export const bluetoothSlice = createSlice({
-  name: "bluetooth",
-  initialState: {
-    devices: {},
-    error: null,
-  },
+// Initialisation de l'état initial du slice
+const initialState = {
+  devices: [], // Liste des appareils découverts
+  selectedDevice: null, // Appareil actuellement connecté
+  data: [] // Données reçues de l'appareil connecté
+};
+
+const bluetoothSlice = createSlice({
+  name: 'bluetooth',
+  initialState,
   reducers: {
-    connectRequest: (state) => {
-    
-    },
-    deviceConnected: (state, action) => {
-      const {deviceId, deviceInfo} = action.payload
-      state.devices[deviceId] = {...deviceInfo, data: []}
-    },
-    deviceDataReceived: (state, action) => {
-      const {deviceId, data} = action.payload;
-      if(state.devices[deviceId]) {
-        state.devices[deviceId].data.push(data)
+    discoveredDevice: (state, action) => {
+      // Ajoute l'appareil découvert à la liste des appareils, évite les doublons
+      const deviceExists = state.devices.some(device => device.id === action.payload.id);
+      if (!deviceExists) {
+        state.devices.push(action.payload);
       }
     },
-    connectionError: (state, action) => {
-      state.error = action.payload
-    }
-  }
-})
+    setSelectedDevice: (state, action) => {
+      // Définit l'appareil sélectionné pour la connexion
+      state.selectedDevice = action.payload;
+    },
+    clearDevices: (state) => {
+      // Réinitialise la liste des appareils découverts
+      state.devices = [];
+    },
+    receivedData: (state, action) => {
+      // Ajoute les données reçues à l'état
+      state.data.push(action.payload);
+    },
+  },
+});
 
-export const {connectRequest,deviceConnected, deviceDataReceived, connectionError} = bluetoothSlice.actions
+export const { discoveredDevice, setSelectedDevice, clearDevices, receivedData } = bluetoothSlice.actions;
 
-export default bluetoothSlice.reducer
-//Penser à importer le fichier par "bluetoothReducer" car RTK crée automatiquement un reducer avec la méthode .reducer
-
+export default bluetoothSlice.reducer;

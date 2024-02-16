@@ -1,12 +1,13 @@
-const {app, BrowserWindow, ipcMain, ipcRenderer} = require('electron')
-const path = require("path")
+const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require("path");
+const nobleManager = require('./shared/nobleManager.js');
+const noble = require('@abandonware/noble');
 
-const isMac = process.platform === 'darwin'
-
-let callbackFroBluetoothEvent
+const isMac = process.platform === 'darwin';
+let mainWindow;
 
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1000,
     height: 800,
     webPreferences: {
@@ -18,32 +19,28 @@ const createWindow = () => {
     }
   });
   
-  mainWindow.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
-    event.preventDefault();
-    console.log('Device list:', deviceList);
-    let result = deviceList[0];
-    if (!result) {
-      callback('');
-    } else {
-      callback(result.deviceId);
-    }
+  ipcMain.on('start-bluetooth-scan', (event, arg) => {
+    console.log('main start');
+    nobleManager.startScanning();
   });
-
-  // ipcMain.on('channel-to-select-device', (event, deviceId) => {
-  //   callbackFroBluetoothEvent(deviceId)
-  //   console.log(`Device selected is ${deviceId}`)
-  // })
-  //
-  // ipcMain.on('cancel-devices-scan', _ => {
-  //   callbackFroBluetoothEvent('')
-  //   console.log("Scan canceled")
-  // })
   
-  mainWindow.webContents.openDevTools()
+  ipcMain.on('cancel-bluetooth-scan', (event, arg) => {
+    console.log('main cancel');
+    nobleManager.stopScanning();
+  });
   
-  // mainWindow.loadURL(`file://${path.join(__dirname, `./dist/index.html`)}`)
-  mainWindow.loadURL('http://localhost:3000')
-}
+  // noble.on('discover', (peripheral) => {
+  //   if (mainWindow) {
+  //     mainWindow.webContents.send('discovered-device', {
+  //       id: peripheral.id,
+  //       name: peripheral.advertisement.localName,
+  //     });
+  //   }
+  // });
+  
+  mainWindow.webContents.openDevTools();
+  mainWindow.loadURL('http://localhost:3000');
+};
 
 app.commandLine.appendSwitch("enable-experimental-web-platform-features", "true");
 app.commandLine.appendSwitch("enable-web-bluetooth", "true");
@@ -56,10 +53,8 @@ app.on('window-all-closed', () => {
   }
 });
 
-
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });
-

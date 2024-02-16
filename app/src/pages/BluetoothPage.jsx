@@ -2,61 +2,29 @@ import styled from '@emotion/styled'
 import {Button, Dropdown} from "antd"
 import {DownloadOutlined, RedoOutlined, CloseOutlined, LoadingOutlined} from "@ant-design/icons"
 import React, {useEffect, useState} from "react";
-import {J500Fparser} from "../parsers/J500Fparser.js";
+import {useDispatch, useSelector} from "react-redux";
+import {discoveredDevice} from "../reducers/bluetoothSlice.js";
+
 const {ipcRenderer} = window.require('electron')
 
 export const BluetoothPage = () => {
-  const [devices, setDevices] = useState([])
   const [selectedDevice, setSelectedDevice] = useState(null)
   const [disableButton, setDisableButton] = useState(true)
-  const [deviceInfo, setDeviceInfo] = useState(        {parsedSpo2Avg: null, parsedPrAvg: null}
-  )
   
-  const scanBluetoothDevices = async () => {
-    console.log("scanBluetoothDevices");
-    try {
-    navigator.bluetoothRemoteGATTDescriptor.readValue({
-        acceptAllDevices: true
-      });
-      
-      
-    } catch (error) {
-      console.error('Error :', error);
-    }
-  };
+  const dispatch = useDispatch()
+  const devices = useSelector(state => state.bluetooth.devices)
   
-  useEffect(() => {
-    const handleDeviceList = (event, devices) => {
-      const filteredDevices = devices.filter(device =>
-        !device.deviceName.startsWith('Appareil'));
-      setDevices(filteredDevices);
-    };
-
-    ipcRenderer.on('xyz', handleDeviceList);
-
-    return () => {
-      ipcRenderer.removeListener('xyz', handleDeviceList);
-    };
-  }, []);
+  const scanBluetoothDevices = () => {
+    dispatch({type: 'BLUETOOTH/START_SCAN'})
+    setDisableButton(false)
+  }
+  
+  const cancelBluetoothScan = () => {
+    dispatch({type: 'BLUETOOTH/STOP_SCAN'})
+    setDisableButton(true)
+  }
   
   console.log(devices)
-
-
-  const cancelDevicesScan = () => {
-    console.log("stop scanning")
-    ipcRenderer.send('cancel-devices-scan')
-    setDisableButton(true)
-    setDevices([])
-  }
-  
-  
-  const selectDevice = (device) => {
-  ipcRenderer.send('channel-to-select-device', device.deviceId)
-    setSelectedDevice(device)
-    setDisableButton(true)
-  }
-
-  
   
   return (
     <BluetoothPageWrapper>
@@ -64,19 +32,18 @@ export const BluetoothPage = () => {
         <DeviceListWrapper>
           <Button type="primary" icon={disableButton ? <RedoOutlined/> : <LoadingOutlined />} onClick={() => {
             scanBluetoothDevices()
-          setDisableButton(false)
             }}>
             Scan Devices
           </Button>
-            {devices.length}
+          {devices.length}
           <DeviceListDisplay>
-            {devices.map((device, index) => (
-            <DeviceSelectorWrapper key={index} onClick={() => selectDevice(device)}>
-              <p>{device.deviceName}</p>
-            </DeviceSelectorWrapper>
+            {devices.map((device) => (
+              <DeviceSelectorWrapper key={device.id}>
+                Nom: {device.name || 'Appareil sans nom'} - RSSI: {device.rssi}
+              </DeviceSelectorWrapper>
             ))}
           </DeviceListDisplay>
-          <Button disabled={disableButton} type="primary" danger icon={<CloseOutlined />} onClick={() => cancelDevicesScan()}>
+          <Button disabled={disableButton} type="primary" danger icon={<CloseOutlined />} onClick={cancelBluetoothScan}>
             Stop Scanning
           </Button>
         </DeviceListWrapper>
