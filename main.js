@@ -18,23 +18,26 @@ const createWindow = () => {
     }
   });
   
-  mainWindow.webContents.on("select-bluetooth-device", (event, devices, callback) => {
-    event.preventDefault()
-    const filteredDevices = devices.filter(device => device.deviceName !== null)
-    mainWindow.webContents.send('xyz', filteredDevices)
-    console.log("Bluetooth devices list dispatched", filteredDevices)
-    callbackFroBluetoothEvent = callback
-  })
-  
-  ipcMain.on('channel-to-select-device', (event, deviceId) => {
-    callbackFroBluetoothEvent(deviceId)
-    console.log(`Device selected is ${deviceId}`)
-  })
-  
-  ipcMain.on('cancel-devices-scan', _ => {
-    callbackFroBluetoothEvent('')
-    console.log("Scan canceled")
-  })
+  mainWindow.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
+    event.preventDefault();
+    console.log('Device list:', deviceList);
+    let result = deviceList[0];
+    if (!result) {
+      callback('');
+    } else {
+      callback(result.deviceId);
+    }
+  });
+
+  // ipcMain.on('channel-to-select-device', (event, deviceId) => {
+  //   callbackFroBluetoothEvent(deviceId)
+  //   console.log(`Device selected is ${deviceId}`)
+  // })
+  //
+  // ipcMain.on('cancel-devices-scan', _ => {
+  //   callbackFroBluetoothEvent('')
+  //   console.log("Scan canceled")
+  // })
   
   mainWindow.webContents.openDevTools()
   

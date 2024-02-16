@@ -1,24 +1,25 @@
 import styled from "@emotion/styled";
 import {useSelector, useDispatch} from "react-redux";
 import {useEffect} from "react";
-import {bluetoothConnectRequest} from "../actions/bluetoothActions.js";
+import { connectRequest} from "../reducers/bluetoothSlice.js";
 
 export const ObservationDisplay = ({observationType}) => {
   const dispatch = useDispatch()
-  const bluetoothData = useSelector(state => state.bluetooth.data)
-  const error = useSelector(state => state.bluetooth.error)
+  const {devices, error} = useSelector(state => state.bluetooth)
   
   useEffect(() => {
-    dispatch(bluetoothConnectRequest())
+    dispatch(connectRequest())
   }, [dispatch]);
   
-  console.log(bluetoothData)
-  console.log(error)
+console.log("devices :", devices);
+console.log("Error :", error);
   
   return (
     <ObservationDisplayBorder>
-    <ObservationName>{observationType}</ObservationName>
-      <ObservationResult>{bluetoothData}</ObservationResult>
+      <ObservationName>{observationType}</ObservationName>
+      <button onClick={() => dispatch(connectRequest())}>Connect to Device</button>
+      
+      <ObservationResult></ObservationResult>
     </ObservationDisplayBorder>
   )
 }

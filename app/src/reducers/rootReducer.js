@@ -1,9 +1,9 @@
-import { combineReducers } from 'redux';
-import bluetoothReducer from './bluetoothReducer.js';
+import {combineReducers} from "redux";
+import bluetoothReducer from './bluetoothSlice.js'
+// La methode ".reducer" de RTK renomme automatiquement le fichier en "deviceRducer"
 
 const rootReducer = combineReducers({
-  bluetooth: bluetoothReducer,
-  // autres reducers
-});
+  bluetooth: bluetoothReducer
+})
 
-export default rootReducer;
+export default rootReducer

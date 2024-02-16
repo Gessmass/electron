@@ -1,10 +1,9 @@
-import {all} from 'redux-saga/effects'
-import {watchBluetoothConnect} from "./bluetoothSagas.js";
+import { all } from 'redux-saga/effects'
+import {watchBluetoothActions} from "./bluetoothSagas.js";
 
 function* rootSaga() {
   yield all([
-    watchBluetoothConnect()
+    watchBluetoothActions()
   ])
 }
-
 export default rootSaga

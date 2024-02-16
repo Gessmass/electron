@@ -15,30 +15,11 @@ export const BluetoothPage = () => {
   const scanBluetoothDevices = async () => {
     console.log("scanBluetoothDevices");
     try {
-      const isAvailable = await navigator.bluetooth.getAvailability();
-      if (!isAvailable) {
-        new Error('Bluetooth not available on this device');
-      }
-
-      const device = await navigator.bluetooth.requestDevice({
-        filters: [{services: ['cdeacb80-5235-4c07-8846-93a37ee6b86d']}]
+    navigator.bluetoothRemoteGATTDescriptor.readValue({
+        acceptAllDevices: true
       });
-
-      const server = await device?.gatt?.connect();
-
-      const service = await server?.getPrimaryService('cdeacb80-5235-4c07-8846-93a37ee6b86d');
-
-      const characteristic = await service?.getCharacteristic('cdeacb81-5235-4c07-8846-93a37ee6b86d');
-
-      await characteristic?.startNotifications()
-
-      characteristic.addEventListener('characteristicvaluechanged', (event) => {
-        const value = event.target.value
-        if (value.byteLength > 0) {
-         const {parsedSpo2Avg, parsedPrAvg} = J500Fparser(value)
-          console.log(parsedSpo2Avg, parsedPrAvg)
-        }
-      })
+      
+      
     } catch (error) {
       console.error('Error :', error);
     }
