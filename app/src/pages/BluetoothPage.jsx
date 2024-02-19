@@ -3,7 +3,7 @@ import {Button, Dropdown} from "antd"
 import {DownloadOutlined, RedoOutlined, CloseOutlined, LoadingOutlined} from "@ant-design/icons"
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {discoveredDevice} from "../reducers/bluetoothSlice.js";
+import {scanBluetoothDevices} from "../actions/index.js";
 
 const {ipcRenderer} = window.require('electron')
 
@@ -12,17 +12,7 @@ export const BluetoothPage = () => {
   const [disableButton, setDisableButton] = useState(true)
   
   const dispatch = useDispatch()
-  const devices = useSelector(state => state.bluetooth.devices)
-  
-  const scanBluetoothDevices = () => {
-    dispatch({type: 'BLUETOOTH/START_SCAN'})
-    setDisableButton(false)
-  }
-  
-  const cancelBluetoothScan = () => {
-    dispatch({type: 'BLUETOOTH/STOP_SCAN'})
-    setDisableButton(true)
-  }
+  const devices = useSelector(state => state.bluetooth.deviceList)
   
   console.log(devices)
   
@@ -31,7 +21,7 @@ export const BluetoothPage = () => {
       <DataForm>
         <DeviceListWrapper>
           <Button type="primary" icon={disableButton ? <RedoOutlined/> : <LoadingOutlined />} onClick={() => {
-            scanBluetoothDevices()
+            dispatch(scanBluetoothDevices())
             }}>
             Scan Devices
           </Button>
@@ -39,11 +29,11 @@ export const BluetoothPage = () => {
           <DeviceListDisplay>
             {devices.map((device) => (
               <DeviceSelectorWrapper key={device.id}>
-                Nom: {device.name || 'Appareil sans nom'} - RSSI: {device.rssi}
+                Nom: {device}
               </DeviceSelectorWrapper>
             ))}
           </DeviceListDisplay>
-          <Button disabled={disableButton} type="primary" danger icon={<CloseOutlined />} onClick={cancelBluetoothScan}>
+          <Button disabled={disableButton} type="primary" danger icon={<CloseOutlined />}>
             Stop Scanning
           </Button>
         </DeviceListWrapper>
