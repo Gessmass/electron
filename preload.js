@@ -1,19 +1,10 @@
-// const {contextBridge, ipcRenderer} = require('electron/renderer')
-//
-// process.once("loaded", () => {
-//   contextBridge.exposeInMainWorld("ipcRenderer", ipcRenderer)
-// })
-//
-// window.require = require;
-//
-
+// preload.js
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('electron', {
-  ipcRenderer: {
-    send: (channel, data) => ipcRenderer.send(channel, data),
-    on: (channel, func) => {
-      ipcRenderer.on(channel, (event, ...args) => func(...args));
-    }
-  }
+contextBridge.exposeInMainWorld('electronAPI', {
+  scanForDevices: () => ipcRenderer.invoke('scan-for-devices'),
+  stopDevicesScan: () => ipcRenderer.invoke('cancel-bluetooth-scan'),
+  onDeviceDiscovered: (callback) => ipcRenderer.on('device-discovered', (event, device) => callback(device)),
+  selectDevice: (deviceId) => ipcRenderer.invoke('select-bluetooth-device', deviceId)
 });
+

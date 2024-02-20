@@ -1,18 +1,26 @@
 import styled from '@emotion/styled'
 import {Button, Dropdown} from "antd"
-import {DownloadOutlined, RedoOutlined, CloseOutlined, LoadingOutlined} from "@ant-design/icons"
+import {RedoOutlined, CloseOutlined, LoadingOutlined} from "@ant-design/icons"
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {scanBluetoothDevices} from "../actions/index.js";
-
-const {ipcRenderer} = window.require('electron')
+import {selectBluetoothDevice, startScanBluetoothDevices, stopScanBluetoothDevices} from "../actions/index.js";
+import {DISCOVERED_DEVICES} from "../actions/types.js";
 
 export const BluetoothPage = () => {
-  const [selectedDevice, setSelectedDevice] = useState(null)
-  const [disableButton, setDisableButton] = useState(true)
-  
   const dispatch = useDispatch()
   const devices = useSelector(state => state.bluetooth.deviceList)
+  const isScanning = useSelector(state => state.bluetooth.isScanning)
+
+// Dispatch une action Redux chaque fois qu'un dispositif est découvert
+  useEffect(() => {
+    window.electronAPI.onDeviceDiscovered((device) => {
+      dispatch({ type: DISCOVERED_DEVICES, payload: { device } });
+    });
+    return () => {
+      window.electronAPI.removeAllListeners();
+    };
+  }, [dispatch]);
+  
   
   console.log(devices)
   
@@ -20,33 +28,30 @@ export const BluetoothPage = () => {
     <BluetoothPageWrapper>
       <DataForm>
         <DeviceListWrapper>
-          <Button type="primary" icon={disableButton ? <RedoOutlined/> : <LoadingOutlined />} onClick={() => {
-            dispatch(scanBluetoothDevices())
+          <Button type="primary" icon={isScanning ? <LoadingOutlined/> : <RedoOutlined/>} onClick={() => {
+            dispatch(startScanBluetoothDevices())
             }}>
             Scan Devices
           </Button>
           {devices.length}
           <DeviceListDisplay>
             {devices.map((device) => (
-              <DeviceSelectorWrapper key={device.id}>
-                Nom: {device}
+              <DeviceSelectorWrapper key={device.id} onClick={() => dispatch(selectBluetoothDevice(device.id))}>
+                Nom: {device.name}
               </DeviceSelectorWrapper>
             ))}
           </DeviceListDisplay>
-          <Button disabled={disableButton} type="primary" danger icon={<CloseOutlined />}>
+          <Button disabled={!isScanning} type="primary" danger icon={<CloseOutlined />} onClick={() => dispatch(stopScanBluetoothDevices())}>
             Stop Scanning
           </Button>
         </DeviceListWrapper>
         <FetchDataWrapper>
-          <Button disabled={!selectedDevice} type="primary" icon={<DownloadOutlined/>}>
-            Fetch data
-          </Button>
+          {/*<Button disabled={!selectedDevice} type="primary" icon={<DownloadOutlined/>}>*/}
+          {/*  Fetch data*/}
+          {/*</Button>*/}
         </FetchDataWrapper>
       </DataForm>
       <DataDisplay>
-        {selectedDevice &&
-        <SelectedDeviceName>{selectedDevice.deviceName}</SelectedDeviceName>
-        }
       </DataDisplay>
     </BluetoothPageWrapper>
   )

@@ -1,8 +1,22 @@
-import {SCAN_DEVICES} from "./types.js";
+import {START_SCAN, CANCEL_SCAN, SELECT_DEVICE} from "./types.js";
 
-export const scanBluetoothDevices = () => {
-  console.log("action")
+export const startScanBluetoothDevices = () => {
   return {
-    type: SCAN_DEVICES,
+    type: START_SCAN,
+  }
+}
+
+export const stopScanBluetoothDevices = () => {
+  console.log("stopScanBluetoothDevices")
+  return {
+    type: CANCEL_SCAN
+  }
+}
+
+export const selectBluetoothDevice = (deviceId) => {
+  console.log('selectBluetoothDevice')
+  return {
+  type: SELECT_DEVICE,
+  payload: deviceId
   }
 }
