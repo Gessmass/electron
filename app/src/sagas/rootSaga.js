@@ -1,12 +1,12 @@
 import { all } from 'redux-saga/effects'
 import {bluetoothSaga, stopBluetoothScan} from "./bluetoothSaga.js";
-import connectDeviceSaga from "./connectDeviceSaga.js";
+import J500FSaga from "./J500FSaga.js";
 
 function* rootSaga() {
   yield all([
     bluetoothSaga(),
     stopBluetoothScan(),
-    connectDeviceSaga()
+    J500FSaga()
   ])
 }
 export default rootSaga

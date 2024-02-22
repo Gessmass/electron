@@ -14,7 +14,7 @@ export const stopScanBluetoothDevices = () => {
 }
 
 export const selectBluetoothDevice = (deviceId) => {
-  console.log('selectBluetoothDevice')
+  console.log('selectBluetoothDevice ACTION')
   return {
   type: SELECT_DEVICE,
   payload: deviceId
