@@ -1,26 +1,59 @@
 import styled from "@emotion/styled";
-import {Button} from "antd";
+import {Menu} from "antd";
+import {DesktopOutlined} from "@ant-design/icons";
+import {useDispatch, useSelector} from "react-redux";
+import {useEffect} from "react";
+import {startScanBluetoothDevices} from "../actions/index.js";
 
-export const DeviceDisplay = ({itemName}) => {
+function getItem(label, key, icon, children, type) {
+  return {
+    key,
+    icon,
+    children,
+    label,
+    type,
+  };
+}
+
+export const DeviceDisplay = () => {
+  const devices = useSelector(state => state.bluetooth.deviceList);
+  const dispatch = useDispatch()
+  
+  useEffect(() => {
+    dispatch(startScanBluetoothDevices())
+    ("dispatch")
+  }, [dispatch()]);
+  
+  
+  // Transformer la liste des dispositifs en items de menu
+  const deviceMenuItems = devices.length > 0 ?
+    devices.map((device, index) => getItem(device.name, `device-${index}`)) :
+    [getItem('Aucun dispositif', 'no-device')]; // Message lorsque la liste est vide
+  
+  // Intégrer les dispositifs transformés dans la structure des items de menu
+  const items = [
+    getItem('Mes devices', 'sub1', <DesktopOutlined />, deviceMenuItems),
+  ];
+  
+  console.log("Devices display :", devices)
   
   return (
-    <>
-      <DeviceDisplayWrapper>
-        <h2>{itemName}</h2>
-        <Button type={"text"}>Disconnect</Button>
-      </DeviceDisplayWrapper>
-    </>
+    <DeviceDisplayWrapper>
+      <Menu
+        style={{width: "100%", borderRadius: "6px"}}
+        mode="inline"
+        items={items}
+        selectable={false}></Menu>
+    </DeviceDisplayWrapper>
   )
 }
 
 const DeviceDisplayWrapper = styled.div`
     width: 100%;
-    height: 70px;
-    border: 1px solid black;
+    height: 50%;
+    border: 1px solid lime;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: start;
     padding: 5px;
-   
-`
-
+`;

@@ -10,7 +10,7 @@ let mainWindow;
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1000,
-    height: 800,
+    height: 700,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -44,9 +44,10 @@ app.on('activate', () => {
 
 // Gestion du scan bluetooth
 
-  let discoveredDevicesIds = [];
+let discoveredDevicesIds = [];
+
 ipcMain.handle('start-bluetooth-scan', async (event) => {
-  
+
   noble.on('stateChange', (state) => {
     if (state === 'poweredOn') {
       noble.startScanningAsync();
@@ -56,9 +57,9 @@ ipcMain.handle('start-bluetooth-scan', async (event) => {
       console.log("Bluetooth not available on this device")
     }
   });
-  
+
   noble.on('discover', (peripheral) => {
-    
+
     const device = {
       id: peripheral.id,
       name: peripheral.advertisement.localName,
@@ -70,9 +71,9 @@ ipcMain.handle('start-bluetooth-scan', async (event) => {
         state: peripheral.state
       }
     };
-  
+
     const deviceAlreadyExists = discoveredDevicesIds.some(d => d === device.id )
-    
+
     if (!deviceAlreadyExists && device.name) {
       discoveredDevicesIds.push(device.id);
       console.log("Device discovered :", device.name)
@@ -80,6 +81,7 @@ ipcMain.handle('start-bluetooth-scan', async (event) => {
     }
   });
 });
+
 
 ipcMain.handle('cancel-bluetooth-scan', () => {
   console.log('Scan canceled')
@@ -90,7 +92,7 @@ ipcMain.handle('cancel-bluetooth-scan', () => {
 ipcMain.handle('select-bluetooth-device', async (event, deviceId) => {
   const SERVICE_UUID = 'cdeacb80-5235-4c07-8846-93a37ee6b86d';
   const CHARACTERISTIC_UUID = 'cdeacb81-5235-4c07-8846-93a37ee6b86d';
-  
+
   console.log('select-bluetooth-device')
   if (noble.state === 'poweredOn') {
     await noble.startScanningAsync([SERVICE_UUID], false);
@@ -106,20 +108,20 @@ ipcMain.handle('select-bluetooth-device', async (event, deviceId) => {
       }
     });
   }
-  
+
   noble.on('discover', async (peripheral) => {
     if (peripheral.id === deviceId || peripheral.address === deviceId) {
       await noble.stopScanningAsync();
       console.log(`Device found: ${peripheral.advertisement.localName}`);
-      
+
       // Se connecter au dispositif
       await peripheral.connectAsync();
       console.log('Connected to device');
-      
+
       // Découvrir les services et les caractéristiques
       const { characteristics } = await peripheral.discoverSomeServicesAndCharacteristicsAsync([SERVICE_UUID], [CHARACTERISTIC_UUID]);
       const oximeterCharacteristic = characteristics[0];
-      
+
       // S'abonner aux notifications
       oximeterCharacteristic.subscribe((error) => {
         if (error) {
@@ -128,13 +130,13 @@ ipcMain.handle('select-bluetooth-device', async (event, deviceId) => {
           console.log('Subscribed to oximeterCharacteristic notifications');
         }
       });
-      
+
       // Gérer les données reçues
       oximeterCharacteristic.on('data', (data, isNotification) => {
         console.log('Oximeter data received', data);
         mainWindow.webContents.send('bluetooth-notification', data)
       });
-      
+
     }
   });
   

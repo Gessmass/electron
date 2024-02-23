@@ -21,7 +21,6 @@ const createBluetoothNotificationsChannel = (deviceId) => {
 
 
 function* selectDeviceWorker(action) {
-  console.log('selectDeviceWorker', action.payload)
   yield fork(selectDeviceById, action.payload)
   const channel = yield call(createBluetoothNotificationsChannel)
 
@@ -40,7 +39,7 @@ function* selectDeviceWorker(action) {
         return;
       }
     }
-    const parsedData= J500Fparser(data)
+    const parsedData= J500Fparser(dataView)
     if (parsedData) {
       yield put({ type: NOTIFICATION_RECEIVED, payload: parsedData})
     }
@@ -48,10 +47,8 @@ function* selectDeviceWorker(action) {
 }
 
 const selectDeviceById = (deviceId) => {
-  console.log('selectDeviceById', deviceId)
   window.electronAPI.selectDevice(deviceId)
 }
 export default function* J500FSaga() {
-  console.log("J500FSaga")
   yield takeEvery(SELECT_DEVICE, selectDeviceWorker)
 }

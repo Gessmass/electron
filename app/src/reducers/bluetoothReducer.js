@@ -18,6 +18,7 @@ const initialState = {
 const bluetoothReducer = (state = initialState, action) => {
   switch (action.type) {
     case DISCOVERED_DEVICES:
+      console.log("DISCOVERED_DEVICES")
       return {
         ...state,
         deviceList: [...state.deviceList, action.payload]

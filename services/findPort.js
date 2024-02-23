@@ -1,9 +1,5 @@
-const SerialPort = require('serialport');
+const bonjour = require('bonjour')()
 
-SerialPort.list().then(ports => {
-  ports.forEach(port => {
-    console.log(`${port.path} - ${port.manufacturer}`);
-  });
-}).catch(err => {
-  console.error('Error listing ports', err);
-});
+bonjour.find({ type: 'http' }, (service) => {
+  console.log("Found an http server :", service)
+})
