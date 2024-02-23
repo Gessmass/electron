@@ -44,8 +44,8 @@ app.on('activate', () => {
 
 // Gestion du scan bluetooth
 
-ipcMain.handle('start-bluetooth-scan', async (event) => {
   let discoveredDevicesIds = [];
+ipcMain.handle('start-bluetooth-scan', async (event) => {
   
   noble.on('stateChange', (state) => {
     if (state === 'poweredOn') {
@@ -84,20 +84,21 @@ ipcMain.handle('start-bluetooth-scan', async (event) => {
 ipcMain.handle('cancel-bluetooth-scan', () => {
   console.log('Scan canceled')
   noble.stopScanning()
+  discoveredDevicesIds = []
 })
 
 ipcMain.handle('select-bluetooth-device', async (event, deviceId) => {
-  const OXIMETER_SERVICE_UUID = 'cdeacb80-5235-4c07-8846-93a37ee6b86d';
-  const OXIMETER_CHARACTERISTIC_UUID = 'cdeacb81-5235-4c07-8846-93a37ee6b86d';
+  const SERVICE_UUID = 'cdeacb80-5235-4c07-8846-93a37ee6b86d';
+  const CHARACTERISTIC_UUID = 'cdeacb81-5235-4c07-8846-93a37ee6b86d';
   
   console.log('select-bluetooth-device')
   if (noble.state === 'poweredOn') {
-    await noble.startScanningAsync([OXIMETER_SERVICE_UUID], false);
+    await noble.startScanningAsync([SERVICE_UUID], false);
     console.log('Scanning...');
   } else {
     noble.on('stateChange', async (state) => {
       if (state === 'poweredOn') {
-        await noble.startScanningAsync([OXIMETER_SERVICE_UUID], false);
+        await noble.startScanningAsync([SERVICE_UUID], false);
         console.log('Scanning...');
       } else {
         console.log('Bluetooth is not powered on.');
@@ -116,7 +117,7 @@ ipcMain.handle('select-bluetooth-device', async (event, deviceId) => {
       console.log('Connected to device');
       
       // Découvrir les services et les caractéristiques
-      const { characteristics } = await peripheral.discoverSomeServicesAndCharacteristicsAsync([OXIMETER_SERVICE_UUID], [OXIMETER_CHARACTERISTIC_UUID]);
+      const { characteristics } = await peripheral.discoverSomeServicesAndCharacteristicsAsync([SERVICE_UUID], [CHARACTERISTIC_UUID]);
       const oximeterCharacteristic = characteristics[0];
       
       // S'abonner aux notifications

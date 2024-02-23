@@ -8,18 +8,16 @@ export const J500Fparser = (value) => {
   } else if (value instanceof ArrayBuffer) {
     dataView = new DataView(value);
   } else {
-    console.error("L'objet fourni n'est pas un DataView ou un ArrayBuffer.");
-    return; // Sortie précoce si 'value' n'est pas le type attendu
+    {
+      console.error("L'objet fourni n'est pas un DataView ou un ArrayBuffer.");
+      return;
+    }
   }
   
   if (dataView.getUint8(0) === 0x81 && dataView.getUint8(1) !== 0xFF && dataView.getUint8(2) !== 0x7F) {
     const spo2Avg = dataView.getUint8(2);
     const prAvg = dataView.getUint8(1);
     
-    return {
-      parsedSpo2Avg: spo2Avg,
-      parsedPrAvg: prAvg,
-      value
-    };
+    return {parsedSpo2Avg: spo2Avg, parsedPrAvg: prAvg}
   }
 }

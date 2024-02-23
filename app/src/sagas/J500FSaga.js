@@ -1,5 +1,5 @@
-import { call, fork,take, takeEvery } from 'redux-saga/effects';
-import {SELECT_DEVICE} from "../actions/types.js";
+import { call, put, fork,take, takeEvery } from 'redux-saga/effects';
+import {NOTIFICATION_RECEIVED, SELECT_DEVICE} from "../actions/types.js";
 import {eventChannel} from "redux-saga";
 import {J500Fparser} from "../parsers/J500Fparser.js";
 
@@ -27,8 +27,23 @@ function* selectDeviceWorker(action) {
 
   while(true) {
     const data = yield take(channel)
+    let dataView;
+    if (data instanceof DataView) {
+      dataView = data;
+    } else if (data.buffer && data.buffer instanceof ArrayBuffer) {
+      dataView = new DataView(data.buffer);
+    } else if (data instanceof ArrayBuffer) {
+      dataView = new DataView(data);
+    } else {
+      {
+        console.error("L'objet fourni n'est pas un DataView ou un ArrayBuffer.");
+        return;
+      }
+    }
     const parsedData= J500Fparser(data)
-    console.log('Notification bluetooth', parsedData)
+    if (parsedData) {
+      yield put({ type: NOTIFICATION_RECEIVED, payload: parsedData})
+    }
   }
 }
 
