@@ -21,8 +21,7 @@ export const DeviceDisplay = () => {
   
   useEffect(() => {
     dispatch(startScanBluetoothDevices())
-    ("dispatch")
-  }, [dispatch()]);
+  }, [dispatch]);
   
   
   // Transformer la liste des dispositifs en items de menu
@@ -30,7 +29,7 @@ export const DeviceDisplay = () => {
     devices.map((device, index) => getItem(device.name, `device-${index}`)) :
     [getItem('Aucun dispositif', 'no-device')]; // Message lorsque la liste est vide
   
-  // Intégrer les dispositifs transformés dans la structure des items de menu
+  // Intï¿½grer les dispositifs transformï¿½s dans la structure des items de menu
   const items = [
     getItem('Mes devices', 'sub1', <DesktopOutlined />, deviceMenuItems),
   ];
@@ -51,7 +50,6 @@ export const DeviceDisplay = () => {
 const DeviceDisplayWrapper = styled.div`
     width: 100%;
     height: 50%;
-    border: 1px solid lime;
     display: flex;
     justify-content: space-between;
     align-items: start;

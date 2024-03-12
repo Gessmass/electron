@@ -5,7 +5,7 @@ import {
   SCAN_STOPPED,
   SELECT_DEVICE,
   START_SCAN
-} from "../actions/types.js"; // Assurez-vous d'avoir le bon chemin d'accès
+} from "../actions/types.js"; // Assurez-vous d'avoir le bon chemin d'accï¿½s
 
 const initialState = {
   deviceList: [],

@@ -9,7 +9,7 @@ import {
 import {eventChannel} from "redux-saga";
 
 
-// Créer un canal pour écouter les événements de dispositifs découverts
+// Creer un canal pour ï¿½couter les ï¿½vï¿½nements de dispositifs dï¿½couverts
 function createDeviceDiscoveredChannel() {
   return eventChannel(emitter => {
     const handler = (device) => {
@@ -18,10 +18,10 @@ function createDeviceDiscoveredChannel() {
     
     window.electronAPI.onDeviceDiscovered(handler);
     
-    // La fonction de retour est appelée lors de la fermeture du canal
+    // La fonction de retour est appelï¿½e lors de la fermeture du canal
     return () => {
-      console.log("Nettoyage: suppression des listeners d'événements");
-      window.electronAPI.offDeviceDiscovered(handler); // Assurez-vous d'implémenter cette fonction offDeviceDiscovered pour nettoyer les listeners
+      console.log("Nettoyage: suppression des listeners d'ï¿½vï¿½nements");
+      window.electronAPI.offDeviceDiscovered(handler); // Assurez-vous d'implï¿½menter cette fonction offDeviceDiscovered pour nettoyer les listeners
     };
   });
 }
@@ -30,12 +30,12 @@ function createDeviceDiscoveredChannel() {
 function* scanDevicesWorker() {
   const channel = createDeviceDiscoveredChannel();
   try {
-    // On démarre le scan
+    // On dï¿½marre le scan
     yield put({ type: SCAN_STARTED });
-    window.electronAPI.scanForDevices(); // Démarre le scan sans attendre ici car les résultats viendront via le canal
+    window.electronAPI.scanForDevices(); // Dï¿½marre le scan sans attendre ici car les rï¿½sultats viendront via le canal
     
     while (true) {
-      // Attendre le dispositif découvert depuis le canal
+      // Attendre le dispositif dï¿½couvert depuis le canal
       const device = yield take(channel);
       console.log(device)
       yield put({ type: DISCOVERED_DEVICES, payload: device });
@@ -43,7 +43,7 @@ function* scanDevicesWorker() {
   } catch (err) {
     console.error("Erreur lors du scan Bluetooth :", err);
   } finally {
-    channel.close(); // Ferme le canal lorsque le scan est arrêté ou en cas d'erreur
+    channel.close(); // Ferme le canal lorsque le scan est arrï¿½tï¿½ ou en cas d'erreur
     yield put({ type: SCAN_STOPPED });
     console.log("Fermeture du canal et nettoyage");
   }
@@ -52,13 +52,13 @@ function* stopDevicesScan() {
   try {
     yield call(window.electronAPI.stopDevicesScan);
     console.log('stop scan saga');
-    yield put({ type: SCAN_STOPPED }); // Déclenche l'action ici
+    yield put({ type: SCAN_STOPPED }); // Dï¿½clenche l'action ici
   } catch (err) {
     console.log(err);
   }
 }
 
-// Saga watcher et arrêt du scan Bluetooth
+// Saga watcher et arrï¿½t du scan Bluetooth
 export function* bluetoothSaga() {
   yield takeLatest(START_SCAN, scanDevicesWorker);
   console.log('scanstart saga')

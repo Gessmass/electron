@@ -9,7 +9,7 @@ let mainWindow;
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
-    width: 1000,
+    width: 1100,
     height: 700,
     webPreferences: {
       nodeIntegration: false,
@@ -118,7 +118,7 @@ ipcMain.handle('select-bluetooth-device', async (event, deviceId) => {
       await peripheral.connectAsync();
       console.log('Connected to device');
 
-      // Découvrir les services et les caractéristiques
+      // Dï¿½couvrir les services et les caractï¿½ristiques
       const { characteristics } = await peripheral.discoverSomeServicesAndCharacteristicsAsync([SERVICE_UUID], [CHARACTERISTIC_UUID]);
       const oximeterCharacteristic = characteristics[0];
 
@@ -131,7 +131,7 @@ ipcMain.handle('select-bluetooth-device', async (event, deviceId) => {
         }
       });
 
-      // Gérer les données reçues
+      // Gï¿½rer les donnï¿½es reï¿½ues
       oximeterCharacteristic.on('data', (data, isNotification) => {
         console.log('Oximeter data received', data);
         mainWindow.webContents.send('bluetooth-notification', data)
