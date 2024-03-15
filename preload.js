@@ -1,7 +1,7 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer} = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  scanForDevices: () => ipcRenderer.invoke('start-bluetooth-scan'),
+  scanForDevices: () => ipcRenderer.send('start-bluetooth-scan'),
   stopDevicesScan: () => ipcRenderer.invoke('cancel-bluetooth-scan'),
   onDeviceDiscovered: (callback) => {
     ipcRenderer.on('bluetooth-device-discovered', (event, device) => callback(device));
@@ -14,5 +14,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   offBluetoothNotifications: () => {
     ipcRenderer.removeAllListeners('bluetooth-notification');
   },
+  bluetoothUnsupported: (callback) => {
+    ipcRenderer.on('bluetooth-unsupported', (event, data) => callback(data))
+  },
+  bluetoothUnsupportedClean: () => {
+    ipcRenderer.removeAllListeners('bluetooth-unsupported')
+  }
 });
 

@@ -1,8 +1,11 @@
 import styled from '@emotion/styled'
 import MeasureCard from "../components/measures/MeasureCard.jsx";
 import {Button} from "antd";
+import {useEffect, useState} from "react";
 
+const {ipcRenderer} = window
 export const MesuresPage = () => {
+  const [alert, setAlert] = useState(null)
   
   const types = [
     {type: "Taille", value: '180', unit: 'cm'},
@@ -28,6 +31,22 @@ export const MesuresPage = () => {
   const firstHalf = types.slice(0, midIndex)
   const secHalf = types.slice(midIndex)
   
+ 
+  
+  useEffect(() => {
+    const handleBluetoothUnsupported = (data) => {
+      setAlert(data)
+    }
+    
+    window.electronAPI.bluetoothUnsupported(handleBluetoothUnsupported);
+    
+    // Fonction de nettoyage
+    return () => {
+      window.electronAPI.bluetoothUnsupportedClean();
+    };
+  }, []);
+
+  
   return (
    <MeasuresPageWrapper>
      <CardsArea>
@@ -37,6 +56,8 @@ export const MesuresPage = () => {
      <ButtonsArea>
        <Button>Copier les données</Button>
        <Button>Envoyer les données vers mon LGC</Button>
+       {alert &&
+       <div style={{color: "red"}}>Bluetooth : {alert}</div>}
      </ButtonsArea>
    </MeasuresPageWrapper>
   )

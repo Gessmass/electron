@@ -4,7 +4,7 @@ import {
   SELECT_DEVICE,
   DEVICE_CONNECTING,
   DEVICE_CONNECTED,
-  DEVICE_DISCONNECTED, DEVICE_CONNECTION_ERROR, SAVE_BLE_DATA
+  DEVICE_DISCONNECTED, DEVICE_CONNECTION_ERROR, SAVE_BLE_DATA, BLUETOOTH_UNSUPPORTED
 } from "./types.js";
 
 export const startScanBluetoothDevices = () => {
@@ -60,5 +60,11 @@ export const SaveBLEData = (dataType, value, unit) => {
   return {
   type: SAVE_BLE_DATA,
   payload: dataType, value, unit
+  }
+}
+
+export const bluetoothUnsupported = () => {
+  return {
+    type: BLUETOOTH_UNSUPPORTED
   }
 }

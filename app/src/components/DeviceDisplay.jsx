@@ -34,7 +34,6 @@ export const DeviceDisplay = () => {
     getItem('Mes devices', 'sub1', <DesktopOutlined />, deviceMenuItems),
   ];
   
-  console.log("Devices display :", devices)
   
   return (
     <DeviceDisplayWrapper>

@@ -8,7 +8,6 @@ const { Content, Sider} = Layout
 
 
 export const LayoutPage = () => {
-  const location = useLocation()
 
   return (
     <Layout style={{height: "100vh"}}>

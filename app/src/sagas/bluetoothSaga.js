@@ -37,7 +37,6 @@ function* scanDevicesWorker() {
     while (true) {
       // Attendre le dispositif d�couvert depuis le canal
       const device = yield take(channel);
-      console.log(device)
       yield put({ type: DISCOVERED_DEVICES, payload: device });
     }
   } catch (err) {
