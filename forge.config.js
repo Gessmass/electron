@@ -1,18 +1,25 @@
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 const path = require('path')
-const {platform} = require("cmake-js/lib/environment");
+const fs = require('node:fs/promises')
 
 module.exports = {
   packagerConfig: {
     name: "Kligotest Win",
     executableName: "Kligo",
-    asar: {
-      unpack: '**/node_modules/@abandonware/noble/**/*'
-    },
+    asar: false,
     overwrite: true,
     platform: 'win32',
     arch: 'x64',
+    prune: true,
+    ignore: [
+      "^/[.].+$",
+      "^/build$",
+      "^\\/node_modules$",
+      "^\\/[.].+",
+      "^\\/src$",
+      "^\\/app",
+    ]
   },
   rebuildConfig: {},
   makers: [
@@ -42,4 +49,21 @@ module.exports = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
+  hooks: {
+    postRushInstall: [
+      "find ./common -name node_gyp_bins -type d -exec rm -r '{}' \\;"
+    ],
+    packageAfterPrune: [ async (_config, buildPath) => {
+      console.log("ca joue le hook")
+      const gypPath = path.join(
+        buildPath,
+        'resources',
+        'app',
+        'build',
+        'node_gyp_bins'
+      );
+      await fs.rm(gypPath, {recursive: true, force: true});
+    },
+   ]
+  }
 };
