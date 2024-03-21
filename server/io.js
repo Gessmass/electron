@@ -29,7 +29,7 @@ routeNamespace.on('connection', (socket) => {
 
         if (remoteDevice === "ECG") {
             receiverECG = computer //* assign l'IP de l'ordi qui veut recevoir les datas du device via le TCP
-            socket.to(remoteDevice).except(userSocketMap[computer]).emit('assignmentLost', remoteDevice) //* notifie les sockets de la room portant le nom du device concerné qu'ils ne sont plus assignés
+            socket.to(remoteDevice).emit('assignmentLost', remoteDevice) //* notifie les sockets de la room portant le nom du device concerné qu'ils ne sont plus assignés
             console.log(`Device ${remoteDevice} assigned to ${computer}`)
         } else if (remoteDevice === "AFINION") {
             receiverAfinion = computer
@@ -38,6 +38,10 @@ routeNamespace.on('connection', (socket) => {
         } else {
             console.log('No device on the local network')
         }
+    })
+
+    socket.on('tcp ecg data', data, deviceName => {
+        console.log("data from tcp", data, deviceName)
     })
 
     socket.on('disconnect', () => {
@@ -62,4 +66,11 @@ io.of("/routeManagement").adapter.on("leave-room", (room, id) => {
     console.log(`socket ${id} has leaving room ${room}`);
 });
 
+const sendDataToComputer = (data, computer) => {
+    console.log(data, computer)
+}
+
+
 server.listen(3000, () => console.log('IO Server listening on port 3000'));
+
+module.exports = sendDataToComputer

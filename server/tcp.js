@@ -1,6 +1,7 @@
 const net = require('net');
-const serverIO = require('http').createServer();
-const io = require('socket.io')(serverIO, {
+const sendDataToComputer = require("./io");
+const server = require('http').createServer();
+const io = require('socket.io')(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"],
@@ -9,11 +10,11 @@ const io = require('socket.io')(serverIO, {
 });
 
 const tcpServer = net.createServer((socket) => {
-    
     socket.on('data', (data) => {
-        if (data.toString().trim()==="") return;
+        if (data.toString().trim() === "") return;
         console.log(`Received data: ${data}`);
-        io.emit('device-data', data.toString());
+
+        sendDataToComputer(data.toString(), socket.localAddress)
     });
 
     socket.on("end", () => {
