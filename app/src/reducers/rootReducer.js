@@ -1,8 +1,10 @@
-import {combineReducers} from "redux";
-import bluetoothReducer from '../reducers/bluetoothReducer.js'
+import { combineReducers } from "redux";
+import BLEReducer from "./BLEReducer.js";
+import authDevicesReducer from "./authDevicesReducer.js";
 
 const rootReducer = combineReducers({
-  bluetooth: bluetoothReducer,
+    BLEReducer,
+    authDevicesReducer
 })
 
 export default rootReducer

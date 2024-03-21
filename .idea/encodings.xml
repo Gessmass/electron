@@ -3,6 +3,6 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/app/reducers/bluetoothReducer.js" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/reducers/bluetoothReducer.js" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/app/src/sagas/bluetoothSaga.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/sagas/BLEDeviceSaga.js" charset="UTF-8" />
   </component>
 </project>

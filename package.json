@@ -25,12 +25,15 @@
     "dotenv": "^16.4.1",
     "electron-squirrel-startup": "^1.0.0",
     "electronmon": "^2.0.2",
+    "express": "^4.18.3",
     "html-webpack-plugin": "^5.6.0",
+    "net": "^1.0.2",
     "node-addon-api": "^8.0.0",
     "node-red": "^3.1.7",
     "node-red-contrib-generic-ble": "^4.0.3",
     "path": "^0.12.7",
     "serialport": "^12.0.0",
+    "socket.io": "^4.7.5",
     "style-loader": "^3.3.4"
   },
   "devDependencies": {
