@@ -1,4 +1,6 @@
 const server = require('http').createServer();
+const fs = require('fs')
+
 const io = require('socket.io')(server, {
     cors: {
         origin: "*",
@@ -25,6 +27,7 @@ routeNamespace.on('connection', (socket) => {
 
     socket.on('requestAssignment', (data) => {
         const remoteDevice = data.body;
+        console.log(data)
         const computerSocketId = userSocketMap[deviceAddress]; // Utilisez l'ID de socket
 
         if (remoteDevice === "ECG") {
@@ -46,16 +49,18 @@ routeNamespace.on('connection', (socket) => {
     });
 });
 
-const sendDataToComputer = (data, deviceIP) => { //* Trier les IPs en fonction de quel device elle vient pour router les datas
+const sendDataToComputer = (filePath) => {
 
-    if (deviceIP === "::ffff:192.168.1.44" && receiverECG) {
-        routeNamespace.to(receiverECG).emit('data from TCP', (data))
-        console.log("if", receiverECG)
-    } else {
-        routeNamespace.emit('data from TCP', 'Pas de data')
-        console.log("else")
+    fs.readFile(filePath, (err, data) => {
+        console.log(data)
+        
+        if (err) {
+            console.error('Error reading the PDF file', err);
+            return;
+        }
 
-    }
+        routeNamespace.emit('fileTransfert', data);
+    });
 }
 
 io.of("/routeManagement").adapter.on("create-room", (room) => {

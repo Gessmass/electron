@@ -23,4 +23,4 @@ const tcpServer = net.createServer((socket) => {
     });
 });
 
-tcpServer.listen(8080, () => console.log('TCP Server listening on port 8080'));
+tcpServer.listen(21, () => console.log('TCP Server listening on port 21'));
