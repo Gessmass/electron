@@ -9,46 +9,54 @@ const io = require('socket.io')(server, {
 
 const routeNamespace = io.of('/routeManagement');
 
-let receiverECG = null
-let receiverAfinion = null
+let receiverECG = null; // ID de socket pour l'ordinateur recevant des données ECG
+let receiverAfinion = null; // ID de socket pour l'ordinateur recevant des données Afinion
 
-const userSocketMap = {}
+const userSocketMap = {};
 
 routeNamespace.on('connection', (socket) => {
-    const deviceAddress = socket.handshake.address
+    const deviceAddress = socket.handshake.address;
 
-    console.log('Connected user : ', deviceAddress)
-    userSocketMap[deviceAddress] = socket.id //* Assigne l'adresse de l'ordi à son numéro de connection socket unique pour la session
+    console.log('Connected user : ', deviceAddress);
+    userSocketMap[deviceAddress] = socket.id;
 
-    socket.join('ECF')
-    socket.join('AFINION')
+    socket.join('ECG');
+    socket.join('AFINION');
 
     socket.on('requestAssignment', (data) => {
-        const remoteDevice = data.body
-        const computer = deviceAddress
+        const remoteDevice = data.body;
+        const computerSocketId = userSocketMap[deviceAddress]; // Utilisez l'ID de socket
 
         if (remoteDevice === "ECG") {
-            receiverECG = computer //* assign l'IP de l'ordi qui veut recevoir les datas du device via le TCP
-            socket.to(remoteDevice).emit('assignmentLost', remoteDevice) //* notifie les sockets de la room portant le nom du device concerné qu'ils ne sont plus assignés
-            console.log(`Device ${remoteDevice} assigned to ${computer}`)
+            receiverECG = computerSocketId;
+            socket.to('ECG').emit('assignmentLost', remoteDevice);
+            console.log(`Device ${remoteDevice} assigned to ${deviceAddress}`);
         } else if (remoteDevice === "AFINION") {
-            receiverAfinion = computer
-            socket.to(remoteDevice).emit('assignmentLost', remoteDevice)
-            console.log(`Device ${remoteDevice} assigned to ${computer}`)
+            receiverAfinion = computerSocketId;
+            socket.to('AFINION').emit('assignmentLost', remoteDevice);
+            console.log(`Device ${remoteDevice} assigned to ${deviceAddress}`);
         } else {
-            console.log('No device on the local network')
+            console.log('No device on the local network');
         }
-    })
-
-    socket.on('tcp ecg data', data, deviceName => {
-        console.log("data from tcp", data, deviceName)
-    })
+    });
 
     socket.on('disconnect', () => {
-        delete userSocketMap[deviceAddress]
-        console.log(deviceAddress, "disconnected")
-    })
+        delete userSocketMap[deviceAddress];
+        console.log(deviceAddress, "disconnected");
+    });
 });
+
+const sendDataToComputer = (data, deviceIP) => { //* Trier les IPs en fonction de quel device elle vient pour router les datas
+
+    if (deviceIP === "::ffff:192.168.1.44" && receiverECG) {
+        routeNamespace.to(receiverECG).emit('data from TCP', (data))
+        console.log("if", receiverECG)
+    } else {
+        routeNamespace.emit('data from TCP', 'Pas de data')
+        console.log("else")
+
+    }
+}
 
 io.of("/routeManagement").adapter.on("create-room", (room) => {
     console.log(`room ${room} was created`);
@@ -65,11 +73,6 @@ io.of("/routeManagement").adapter.on("delete-room", (room) => {
 io.of("/routeManagement").adapter.on("leave-room", (room, id) => {
     console.log(`socket ${id} has leaving room ${room}`);
 });
-
-const sendDataToComputer = (data, computer) => {
-    console.log(data, computer)
-}
-
 
 server.listen(3000, () => console.log('IO Server listening on port 3000'));
 

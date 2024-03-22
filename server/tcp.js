@@ -1,26 +1,26 @@
 const net = require('net');
 const sendDataToComputer = require("./io");
-const server = require('http').createServer();
-const io = require('socket.io')(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"],
-        credentials: true
-    }
-});
+
 
 const tcpServer = net.createServer((socket) => {
+    const clientIP = socket.remoteAddress
+
+    console.log("Client connected to TCP : ", clientIP)
+
+    socket.on('ready', () => {
+        console.log('Socket ready')
+    })
+
     socket.on('data', (data) => {
         if (data.toString().trim() === "") return;
-        console.log(`Received data: ${data}`);
+        console.log(`From TCP: ${data}`);
 
-        sendDataToComputer(data.toString(), socket.localAddress)
+        sendDataToComputer(data.toString(), clientIP)
     });
 
     socket.on("end", () => {
-        console.log("Client ends transmission")
+        console.log(`Client ${clientIP} ends transmition to TCP`)
     });
 });
 
 tcpServer.listen(8080, () => console.log('TCP Server listening on port 8080'));
-
