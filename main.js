@@ -94,9 +94,31 @@ const createWindow = () => {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            enableRemoteModule: true,
             preload: path.join(__dirname, "preload.js")
         }
+    });
+
+    console.log("Setting up 'select-serial-port' listener");
+    mainWindow.webContents.session.on('select-serial-port', (event, portList, webContents, callback) => {
+        console.log("Webcontents")
+        event.preventDefault()
+
+        const donglePort = portList.find(port => port.portName === 'cu.usbmodem4048FDEAE9841')
+
+        if (donglePort) {
+            console.log(`${donglePort.portId} selected`)
+            callback(donglePort.portId)
+        } else {
+            console.log(portList)
+            console.log("No ports")
+        }
+    })
+    mainWindow.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
+        return true;
+    });
+
+    mainWindow.webContents.session.setDevicePermissionHandler((details) => {
+        return true;
     });
 
     const startUrlProd = process.env.ELECTRON_START_URL || `file://${path.join(__dirname, 'app/build/index.html')}`;
@@ -108,21 +130,8 @@ const createWindow = () => {
 app.commandLine.appendSwitch("enable-experimental-web-platform-features", "true");
 app.commandLine.appendSwitch("enable-web-bluetooth", "true");
 
-app.whenReady().then(createWindow);
+//* Bluetooth
 
-createServer((data) => {
-    mainWindow.webContents.send('data', data)
-})
-
-// Handle IPC events for BLE operations
-
-const bluetoothService = new Worker('./services/BLEService.js')
-
-
-ipcMain.on('start-ble-scan', () => {
-    console.log("main")
-    bluetoothService.postMessage('start-ble-scan')
-})
 
 app.on('window-all-closed', () => {
     if (!isMac) {
@@ -135,3 +144,5 @@ app.on('ready', () => {
         createWindow();
     }
 });
+
+

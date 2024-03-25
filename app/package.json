@@ -12,6 +12,8 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "antd": "^5.13.3",
+    "bleuio": "^1.1.1",
+    "bleuio-nodejs-library": "^1.0.3",
     "node-addon-api": "^8.0.0",
     "nodemon": "^3.0.3",
     "react": "^18.2.0",

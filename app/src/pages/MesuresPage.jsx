@@ -4,6 +4,7 @@ import { Button } from "antd";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { startScan } from "../actions/index.js";
+import { scanDevices } from "../services/serial.js";
 
 export const MesuresPage = () => {
     const dispatch = useDispatch()
@@ -28,14 +29,14 @@ export const MesuresPage = () => {
     ]
 
     useEffect(() => {
-        dispatch(startScan())
+        dispatch(startScan)
     }, [dispatch]);
+
 
     const midIndex = Math.ceil(types.length / 2)
 
     const firstHalf = types.slice(0, midIndex)
     const secHalf = types.slice(midIndex)
-
 
     return (
             <MeasuresPageWrapper>
@@ -44,8 +45,8 @@ export const MesuresPage = () => {
                     <MeasureCard types={secHalf}/>
                 </CardsArea>
                 <ButtonsArea>
-                    <Button>Copier les données</Button>
-                    <Button>Envoyer les données vers mon LGC</Button>
+                    <Button>HandleConnect</Button>
+                    <Button onClick={() => scanDevices()}>Scan devices</Button>
                 </ButtonsArea>
             </MeasuresPageWrapper>
     )

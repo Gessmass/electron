@@ -1,4 +1,4 @@
-import { call, select, take, takeEvery } from 'redux-saga/effects'
+import { call, select, take } from 'redux-saga/effects'
 import { SCAN_STARTED, START_SCAN } from "../actions/types.js";
 import * as fromReducers from "../reducers/index.js";
 
@@ -6,7 +6,7 @@ import * as fromReducers from "../reducers/index.js";
 function* scanWorker() {
     try {
         console.log("scan worker")
-        yield call(window.bleAPI.startScan)
+        yield call()
         const authDevices = yield select(fromReducers.getAuthDevices)
         console.log(authDevices)
         while (true) {
@@ -19,7 +19,7 @@ function* scanWorker() {
 }
 
 function* BLESaga() {
-    yield takeEvery(START_SCAN, scanWorker)
+    yield take(START_SCAN, scanWorker)
     console.log("BLESaga")
 }
 

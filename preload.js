@@ -4,7 +4,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 // BLE functionality without exposing the entire Node.js API
 contextBridge.exposeInMainWorld('bleAPI', {
     startScan: () => {
-        ipcRenderer.send('start-ble-scan');
+        ipcRenderer.on('start-ble-scan');
         console.log("bleAPI")
     }
 });
