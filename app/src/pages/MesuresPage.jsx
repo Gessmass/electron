@@ -4,7 +4,6 @@ import { Button } from "antd";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { startScan } from "../actions/index.js";
-import { scanDevices } from "../services/serial.js";
 
 export const MesuresPage = () => {
     const dispatch = useDispatch()
@@ -45,8 +44,8 @@ export const MesuresPage = () => {
                     <MeasureCard types={secHalf}/>
                 </CardsArea>
                 <ButtonsArea>
-                    <Button>HandleConnect</Button>
-                    <Button onClick={() => scanDevices()}>Scan devices</Button>
+                    <Button onClick={() => window.bleAPI.openPort()}>Open port</Button>
+                    <Button onClick={() => window.bleAPI.streamData()}>Scan and connect</Button>
                 </ButtonsArea>
             </MeasuresPageWrapper>
     )
